@@ -1,0 +1,96 @@
+{
+  "title": "Wan2.2-S2V-14B Sound-to-Video",
+  "description": "Audio-driven cinematic video generation. Generate videos synchronized with audio input using a reference image.",
+  "type": "serverless",
+  "category": "video",
+  "iconUrl": "https://huggingface.co/Wan-AI/Wan2.2-S2V-14B/resolve/main/assets/teaser.gif",
+
+  "config": {
+    "runsOn": "GPU",
+    "containerDiskInGb": 150,
+    "gpuCount": 1,
+    "gpuIds": "NVIDIA H100 80GB HBM3,NVIDIA A100 80GB PCIe,NVIDIA H100 PCIe",
+    "allowedCudaVersions": ["12.4", "12.3", "12.2", "12.1", "12.0"],
+
+    "presets": [
+      {
+        "name": "Quality (720p, 30 steps)",
+        "defaults": {
+          "DEFAULT_SIZE": "1280*720",
+          "DEFAULT_STEPS": 30,
+          "OFFLOAD_MODEL": "True"
+        }
+      },
+      {
+        "name": "Balanced (480p, 20 steps)",
+        "defaults": {
+          "DEFAULT_SIZE": "832*480",
+          "DEFAULT_STEPS": 20,
+          "OFFLOAD_MODEL": "True"
+        }
+      },
+      {
+        "name": "Fast (480p, 10 steps)",
+        "defaults": {
+          "DEFAULT_SIZE": "832*480",
+          "DEFAULT_STEPS": 10,
+          "OFFLOAD_MODEL": "True"
+        }
+      }
+    ],
+
+    "env": [
+      {
+        "key": "MODEL_DIR",
+        "value": "/models/Wan2.2-S2V-14B"
+      },
+      {
+        "key": "DEFAULT_SIZE",
+        "input": {
+          "name": "Default Resolution",
+          "type": "string",
+          "description": "Default output resolution (width*height)",
+          "options": [
+            {"label": "720p (1280x720)", "value": "1280*720"},
+            {"label": "480p Portrait (480x832)", "value": "480*832"},
+            {"label": "480p Landscape (832x480)", "value": "832*480"},
+            {"label": "1024x704", "value": "1024*704"}
+          ],
+          "default": "832*480"
+        }
+      },
+      {
+        "key": "DEFAULT_STEPS",
+        "input": {
+          "name": "Default Steps",
+          "type": "number",
+          "description": "Default number of inference steps (higher = better quality, slower)",
+          "min": 10,
+          "max": 50,
+          "default": 30
+        }
+      },
+      {
+        "key": "OFFLOAD_MODEL",
+        "input": {
+          "type": "boolean",
+          "name": "Offload Model",
+          "description": "Offload model components to CPU to reduce VRAM usage",
+          "default": true,
+          "trueValue": "True",
+          "falseValue": "False"
+        }
+      },
+      {
+        "key": "HF_TOKEN",
+        "input": {
+          "name": "Hugging Face Token",
+          "type": "string",
+          "description": "Optional: Hugging Face token for gated models",
+          "default": "",
+          "advanced": true
+        }
+      }
+    ]
+  }
+}
