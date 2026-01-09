@@ -25,16 +25,17 @@ RUN git clone https://github.com/Wan-Video/Wan2.2.git . && \
     git checkout main
 
 # Install Python dependencies
-# Allow torch>=2.4.0 as required by Wan2.2 (diffusers needs torch.xpu from 2.4+)
-# Install flash_attn separately using prebuilt wheel
+# Pin torch to 2.4.x + cu121 to match available flash-attn prebuilt wheel
+# (diffusers>=0.31 needs torch>=2.4 for torch.xpu support)
 RUN pip install --no-cache-dir --upgrade pip && \
-    grep -v flash_attn requirements.txt > requirements_fixed.txt && \
+    pip install --no-cache-dir torch==2.4.1+cu121 torchvision==0.19.1+cu121 --index-url https://download.pytorch.org/whl/cu121 && \
+    grep -v -E "^(torch|torchvision|flash_attn)" requirements.txt > requirements_fixed.txt && \
     pip install --no-cache-dir -r requirements_fixed.txt && \
     pip install --no-cache-dir runpod huggingface_hub[cli]
 
 # Install Flash Attention 2 (use pre-built wheel to avoid 2+ hour build time)
 # Wheel from: https://github.com/mjun0812/flash-attention-prebuild-wheels
-# Using torch2.4 wheel to match upgraded torch version
+# Must match torch version (2.4) and CUDA version (cu121)
 ARG FLASH_ATTN_WHEEL=https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.0.4/flash_attn-2.7.3%2Bcu121torch2.4-cp310-cp310-linux_x86_64.whl
 RUN pip install --no-cache-dir ${FLASH_ATTN_WHEEL}
 
