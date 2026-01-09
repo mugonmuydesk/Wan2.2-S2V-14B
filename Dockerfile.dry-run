@@ -29,8 +29,8 @@ RUN git clone --depth 1 https://github.com/Wan-Video/Wan2.2.git . && \
 # Pin torch to 2.4.x + cu121 to match available flash-attn prebuilt wheel
 # (diffusers>=0.31 needs torch>=2.4 for torch.xpu support)
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir torch==2.4.1+cu121 torchvision==0.19.1+cu121 --index-url https://download.pytorch.org/whl/cu121 && \
-    grep -v -E "^(torch|torchvision|flash_attn)" requirements.txt > requirements_fixed.txt && \
+    pip install --no-cache-dir torch==2.4.1+cu121 torchvision==0.19.1+cu121 torchaudio==2.4.1+cu121 --index-url https://download.pytorch.org/whl/cu121 && \
+    grep -v -E "^(torch|torchvision|torchaudio|flash_attn)" requirements.txt > requirements_fixed.txt && \
     pip install --no-cache-dir -r requirements_fixed.txt && \
     pip install --no-cache-dir runpod huggingface_hub[cli]
 
