@@ -25,13 +25,16 @@ RUN git clone https://github.com/Wan-Video/Wan2.2.git . && \
     git checkout main
 
 # Install Python dependencies (flash_attn needs torch first, so install separately)
+# Pin torch to 2.2.0 to match base image and avoid upgrading to 2.9+ which has no pre-built flash-attn wheels
 RUN pip install --no-cache-dir --upgrade pip && \
-    grep -v flash_attn requirements.txt > requirements_no_flash.txt && \
-    pip install --no-cache-dir -r requirements_no_flash.txt && \
+    grep -v flash_attn requirements.txt | sed 's/torch>=2.4.0/torch==2.2.0/' | sed 's/torchvision>=0.19.0/torchvision==0.17.0/' > requirements_fixed.txt && \
+    pip install --no-cache-dir -r requirements_fixed.txt && \
     pip install --no-cache-dir runpod huggingface_hub[cli]
 
-# Install Flash Attention 2 (requires torch to be installed first)
-RUN pip install --no-cache-dir flash-attn --no-build-isolation
+# Install Flash Attention 2 (use pre-built wheel to avoid 2+ hour build time)
+# Wheel from: https://github.com/mjun0812/flash-attention-prebuild-wheels
+ARG FLASH_ATTN_WHEEL=https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.0.4/flash_attn-2.7.3%2Bcu121torch2.2-cp310-cp310-linux_x86_64.whl
+RUN pip install --no-cache-dir ${FLASH_ATTN_WHEEL}
 
 # Create model directory
 RUN mkdir -p /models
